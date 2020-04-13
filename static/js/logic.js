@@ -1,4 +1,4 @@
-var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
+var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
 
 d3.json(url, function(data){
     console.log(data);
@@ -9,7 +9,7 @@ d3.json(url, function(data){
 function createFeatures(usgsData) {
     
     function onEachFeature(feature, layer) {
-        layer.bindPopup("<h3>"  + feature.properties.place + "</h3><hr><p>" + new Date(feature.properties.time) + "</p>");
+        layer.bindPopup("<h3>"  + feature.properties.title + "</h3><hr><p>Timestamp: " + new Date(feature.properties.time) + "</p>");
     }
 
     var earthquakes = L.geoJSON(usgsData, {
