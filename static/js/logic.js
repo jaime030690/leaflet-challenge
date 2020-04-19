@@ -1,46 +1,67 @@
 var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
 
+// list colors for overlay
+var colors = [
+  "#FF0000",
+  "#FF5700",
+  "#FFC100",
+  "#D4FF00",
+  "#6AFF00",
+  "#00FF00",
+]
+
+//read in data
 d3.json(url, function(data){
     console.log(data);
     createFeatures(data.features);
 });
 
+// function creates fill color 
+function circleFill(mag) {
+  if (mag >= 5) {
+    return colors[0];
+  }
+  else if (mag >= 4) {
+    return colors[1];
+  }
+  else if (mag >= 3) {
+    return colors[2];
+  }
+  else if (mag >= 2) {
+    return colors[3];
+  }
+  else if (mag >= 1) {
+    return colors[4];
+  }
+  else {
+    return colors[5];
+  }
+}
+
 
 // function creates popups for each earthquake
 function createFeatures(usgsData) {
 
-    var circles = [];
+    var earthquakes = [];
 
-    for (var i = 0; i < usgsData; i++) {
+    for (var i = 0; i < usgsData.length; i ++) {
 
-      var coordinates = [
-        usgsData[i].geometry.coordinates[0],
-        usgsData[i].geometry.coordinates[1]
-      ]
+      var mag = usgsData[i].properties.mag;
 
-      var magnitude = usgsData.properties.mag;
+      var location = [usgsData[i].geometry.coordinates[0], usgsData[i].geometry.coordinates[1]];
 
-      circles.push(
-        L.circle(coordinates, {
+      var color = circleFill(mag);
+    
+      earthquakes.push(
+        L.circle(location, {
           fillOpacity: 0.75,
-          color: function(magnitude) {
-            if 
-          }
+          color: "white",
+          fillColor: color,
+          radius: mag * 1500
         })
       )
     }
-    
-    function onEachFeature(feature, layer) {
-        layer.bindPopup("<h3>"  + feature.properties.title + "</h3><hr><p>Timestamp: " + new Date(feature.properties.time) + "</p>");
-      
-    }
-
-    var earthquakes = L.geoJSON(usgsData, {
-        onEachFeature: onEachFeature,
-        style: f => circleProperties(f)
-    });
-
-    createMap(earthquakes);
+  createMap(earthquakes);
 }
 
 //function builds the
