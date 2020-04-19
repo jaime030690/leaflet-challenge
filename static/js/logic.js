@@ -5,15 +5,39 @@ d3.json(url, function(data){
     createFeatures(data.features);
 });
 
+
 // function creates popups for each earthquake
 function createFeatures(usgsData) {
+
+    var circles = [];
+
+    for (var i = 0; i < usgsData; i++) {
+
+      var coordinates = [
+        usgsData[i].geometry.coordinates[0],
+        usgsData[i].geometry.coordinates[1]
+      ]
+
+      var magnitude = usgsData.properties.mag;
+
+      circles.push(
+        L.circle(coordinates, {
+          fillOpacity: 0.75,
+          color: function(magnitude) {
+            if 
+          }
+        })
+      )
+    }
     
     function onEachFeature(feature, layer) {
         layer.bindPopup("<h3>"  + feature.properties.title + "</h3><hr><p>Timestamp: " + new Date(feature.properties.time) + "</p>");
+      
     }
 
     var earthquakes = L.geoJSON(usgsData, {
-        onEachFeature: onEachFeature
+        onEachFeature: onEachFeature,
+        style: f => circleProperties(f)
     });
 
     createMap(earthquakes);
