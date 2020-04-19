@@ -13,7 +13,7 @@ var colors = [
 //read in data
 d3.json(url, function(data){
     console.log(data);
-    createFeatures(data.features);
+    createMap(data.features);
 });
 
 // function creates fill color 
@@ -38,74 +38,37 @@ function circleFill(mag) {
   }
 }
 
+//function builds the map
+function createMap(usgsData) {
 
-// function creates popups for each earthquake
-function createFeatures(usgsData) {
+  // Create our map, giving it the streetmap and earthquakes layers to display on load
+  var myMap = L.map("map", {
+    center: [39.50, -98.35],
+    zoom: 5,
+  });
 
-    var earthquakes = [];
+  // add map base layer
+  L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+    maxZoom: 18,
+    id: "mapbox.streets",
+    accessToken: API_KEY
+  }).addTo(myMap);
 
-    for (var i = 0; i < usgsData.length; i ++) {
+  // loop thru data to add markers
+  for (var i = 0; i < usgsData.length; i ++) {
 
-      var mag = usgsData[i].properties.mag;
+    var mag = usgsData[i].properties.mag;
 
-      var location = [usgsData[i].geometry.coordinates[0], usgsData[i].geometry.coordinates[1]];
+    var location = [usgsData[i].geometry.coordinates[1], usgsData[i].geometry.coordinates[0]];
 
-      var color = circleFill(mag);
-    
-      earthquakes.push(
-        L.circle(location, {
-          fillOpacity: 0.75,
-          color: "white",
-          fillColor: color,
-          radius: mag * 1500
-        })
-      )
-    }
-  createMap(earthquakes);
+    var color = circleFill(mag);
+
+    L.circle(location, {
+      fillOpacity: 0.75,
+      color: "white",
+      fillColor: color,
+      radius: mag * 25000
+    }).bindPopup("<h3>" + usgsData[i].properties.title + "</h3>").addTo(myMap);
+  }    
 }
-
-//function builds the
-function createMap(earthquakes) {
-
-    // Define streetmap and darkmap layers
-    var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-      attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-      maxZoom: 18,
-      id: "mapbox.streets",
-      accessToken: API_KEY
-    });
-  
-    var darkmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-      attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-      maxZoom: 18,
-      id: "mapbox.dark",
-      accessToken: API_KEY
-    });
-  
-    // Define a baseMaps object to hold our base layers
-    var baseMaps = {
-      "Street Map": streetmap,
-      "Dark Map": darkmap
-    };
-  
-    // Create overlay object to hold our overlay layer
-    var overlayMaps = {
-      Earthquakes: earthquakes
-    };
-  
-    // Create our map, giving it the streetmap and earthquakes layers to display on load
-    var myMap = L.map("map", {
-      center: [
-        39.50, -98.35
-      ],
-      zoom: 5,
-      layers: [streetmap, earthquakes]
-    });
-  
-    // Create a layer control
-    // Pass in our baseMaps and overlayMaps
-    // Add the layer control to the map
-    L.control.layers(baseMaps, overlayMaps, {
-      collapsed: false
-    }).addTo(myMap);
-  }
