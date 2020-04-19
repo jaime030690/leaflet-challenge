@@ -10,6 +10,15 @@ var colors = [
   "#00FF00",
 ]
 
+var limits = [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5
+]
+
 //read in data
 d3.json(url, function(data){
     console.log(data);
@@ -71,4 +80,36 @@ function createMap(usgsData) {
       radius: mag * 25000
     }).bindPopup("<h3>" + usgsData[i].properties.title + "</h3>").addTo(myMap);
   }    
+
+  // create legend
+  var legend = L.control({position: "bottomright"});
+
+  legend.onAdd = function() {
+
+    var div = L.DomUtil.create("div", "info legend");
+
+    var labels = [];
+
+    var legendInfo = "<h1>Magnitude</h1>" +
+      "<div class=\"labels\">" + 
+        "<div class=\"min\">" + limits[0] + "</div>" + 
+        "<div class=\"max\">" + limits[limits.length - 1] + "</div>" + 
+      "</div>";
+    
+    div.innerHTML = legendInfo;
+    
+    limits.forEach(function(limit, index) {
+      labels.push("<li style=\"background-color: " + colors[colors.length - index - 1] + "\"></li>");
+    });
+
+    div.innerHTML += "<ul>" + labels.join("") + "</ul>";
+
+    return div;
+
+  }
+
+  console.log(legend);
+
+  legend.addTo(myMap);
+
 }
